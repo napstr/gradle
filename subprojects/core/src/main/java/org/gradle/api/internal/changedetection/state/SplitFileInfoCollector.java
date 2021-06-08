@@ -18,6 +18,8 @@ package org.gradle.api.internal.changedetection.state;
 
 import org.gradle.cache.GlobalCacheLocations;
 import org.gradle.internal.hash.FileHasher;
+import org.gradle.internal.hash.FileInfo;
+import org.gradle.internal.hash.FileInfoCollector;
 import org.gradle.internal.hash.HashCode;
 
 import java.io.File;
@@ -26,12 +28,12 @@ import java.io.File;
  * A {@link FileHasher} that delegates to the global hasher for immutable files
  * and uses the local hasher for all other files. This ensures optimal cache utilization.
  */
-public class SplitFileHasher implements FileHasher {
-    private final FileHasher globalHasher;
-    private final FileHasher localHasher;
+public class SplitFileInfoCollector implements FileInfoCollector {
+    private final FileInfoCollector globalHasher;
+    private final FileInfoCollector localHasher;
     private final GlobalCacheLocations globalCacheLocations;
 
-    public SplitFileHasher(FileHasher globalHasher, FileHasher localHasher, GlobalCacheLocations globalCacheLocations) {
+    public SplitFileInfoCollector(FileInfoCollector globalHasher, FileInfoCollector localHasher, GlobalCacheLocations globalCacheLocations) {
         this.globalHasher = globalHasher;
         this.localHasher = localHasher;
         this.globalCacheLocations = globalCacheLocations;
@@ -52,6 +54,15 @@ public class SplitFileHasher implements FileHasher {
             return globalHasher.hash(file, length, lastModified);
         } else {
             return localHasher.hash(file, length, lastModified);
+        }
+    }
+
+    @Override
+    public FileInfo collect(File file, long length, long lastModified) {
+        if (globalCacheLocations.isInsideGlobalCache(file.getPath())) {
+            return globalHasher.collect(file, length, lastModified);
+        } else {
+            return localHasher.collect(file, length, lastModified);
         }
     }
 }
