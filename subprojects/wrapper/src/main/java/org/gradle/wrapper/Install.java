@@ -246,6 +246,7 @@ public class Install {
     }
 
     private void unzip(File zip, File dest) throws IOException {
+        String destPath = dest.getCanonicalPath();
         ZipFile zipFile = new ZipFile(zip);
         try {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -253,7 +254,10 @@ public class Install {
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
 
-                File destFile = new File(dest, entry.getName());
+                File destFile = new File(dest, entry.getName()).getCanonicalFile();
+                if (!destFile.getPath().startsWith(destPath)) {
+                    throw new IllegalArgumentException(format("Zip entry '%s' is outside target directory '%s'.", entry.getName(), destPath));
+                }
                 if (entry.isDirectory()) {
                     destFile.mkdirs();
                     continue;
