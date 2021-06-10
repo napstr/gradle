@@ -157,12 +157,24 @@ public class ZipFileTree extends AbstractArchiveFileTree {
         @Override
         public File getFile() {
             if (file == null) {
-                file = new File(expandedDir, entry.getName());
+                file = canonicalDestFile();
                 if (!file.exists()) {
                     copyTo(file);
                 }
             }
             return file;
+        }
+
+        private File canonicalDestFile() {
+            try {
+                File destFile = new File(expandedDir, entry.getName()).getCanonicalFile();
+                if (!destFile.getPath().startsWith(expandedDir.getPath())) {
+                    throw new IllegalArgumentException(format("Zip entry '%s' is outside target directory '%s'.", entry.getName(), destFile.getPath()));
+                }
+                return destFile;
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
 
         @Override
