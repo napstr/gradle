@@ -72,6 +72,9 @@ public class DefaultPerformanceExecutionDataProvider extends PerformanceExecutio
         PerformanceTestHistory history = resultsStore.getTestResults(teamCityExecutionsOfSameScenario.get(0).getPerformanceExperiment(), DEFAULT_RETRY_COUNT, PERFORMANCE_DATE_RETRIEVE_DAYS, ResultsStoreHelper.determineChannel(), teamcityBuildIds);
 
         List<PerformanceReportScenarioHistoryExecution> historyExecutions = removeEmptyExecution(history.getExecutions());
+
+        System.out.println("teamcity exeuctions: " + teamcityBuildIds);
+        System.out.println("History executions: " + historyExecutions.size());
         return new PerformanceReportScenario(
             teamCityExecutionsOfSameScenario,
             historyExecutions,
