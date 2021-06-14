@@ -120,6 +120,12 @@ if [ "\$cygwin" = "false" -a "\$darwin" = "false" -a "\$nonstop" = "false" ] ; t
         warn "Could not query maximum file descriptor limit: \$MAX_FD_LIMIT"
     fi
 fi
+# For Darwin, disable file descriptors limit in the JVM.
+if \$darwin; then
+    if [ "\$MAX_FD" = "maximum" -o "\$MAX_FD" = "max" ] ; then
+        DEFAULT_JVM_OPTS="\$DEFAULT_JVM_OPTS \"-XX:-MaxFDLimit\""
+    fi
+fi
 
 # For Darwin, add options to specify how the application appears in the dock
 if \$darwin; then
